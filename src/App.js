@@ -56,6 +56,7 @@ function Board({ xIsNext, squares, onPlay }) {
 function Game() {
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
+  const [isDesc, setIsDesc] = useState(false);
   const xIsNext = currentMove % 2 === 0;
   const currentSquares = history[currentMove];
 
@@ -67,6 +68,10 @@ function Game() {
 
   function jumpTo(nextMove) {
     setCurrentMove(nextMove);
+  }
+
+  function handleToggle() {
+    setIsDesc(!isDesc);
   }
 
   const moves = history.map((squares, move) => {
@@ -85,13 +90,19 @@ function Game() {
     );
   });
 
+  let newMoves = [...moves.slice()];
+  if(isDesc) {
+    newMoves = [...newMoves.slice(0, 1), ...newMoves.slice(1).reverse()];
+  }
+
   return (
     <div className="game">
       <div className="game-board">
         <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
       </div>
       <div className="game-info">
-        <ol>{moves}</ol>
+        <button onClick={handleToggle}>{isDesc ? 'Sort by Asc' : 'Sort by Desc'}</button>
+        <ol>{newMoves}</ol>
       </div>
     </div>
   );
