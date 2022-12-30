@@ -20,7 +20,7 @@ function Board({ xIsNext, squares, onPlay }) {
     } else {
       nextSquares[i] = 'O';
     }
-    onPlay(nextSquares);
+    onPlay(nextSquares, i);
   }
 
   const winResult = calculateWinner(squares);
@@ -65,14 +65,14 @@ function Board({ xIsNext, squares, onPlay }) {
 }
 
 function Game() {
-  const [history, setHistory] = useState([Array(9).fill(null)]);
+  const [history, setHistory] = useState([{squares: Array(9).fill(null), lastMoved: null}]);
   const [currentMove, setCurrentMove] = useState(0);
   const [isDesc, setIsDesc] = useState(false);
   const xIsNext = currentMove % 2 === 0;
-  const currentSquares = history[currentMove];
+  const currentSquares = history[currentMove].squares;
 
-  function handlePlay(nextSquares) {
-    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
+  function handlePlay(nextSquares, i) {
+    const nextHistory = [...history.slice(0, currentMove + 1), {squares: nextSquares, lastMoved: i}];
     setHistory(nextHistory);
     setCurrentMove(nextHistory.length - 1);
   }
@@ -85,10 +85,12 @@ function Game() {
     setIsDesc(!isDesc);
   }
 
-  const moves = history.map((squares, move) => {
+  const moves = history.map((h, move) => {
     let description;
+    let lastMoved = h.lastMoved;
+    let boardSize = 3;
     if (move > 0) {
-      description = (currentMove === move ? 'You are at move #' : 'Go to move #') + move;
+      description = (currentMove === move ? 'You are at move #' : 'Go to move #') + `${move}(${Math.floor(lastMoved/boardSize)}, ${lastMoved%boardSize})`;
     } else {
       description = 'Go to game start';
     }
