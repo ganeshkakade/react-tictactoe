@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import './App.css';
 
-function Square({ value, onSquareClick }) {
+function Square({ value, onSquareClick, style }) {
   return (
-    <button className="square" onClick={onSquareClick}>
+    <button className="square" onClick={onSquareClick} style={style}>
       {value}
     </button>
   );
@@ -23,22 +23,35 @@ function Board({ xIsNext, squares, onPlay }) {
     onPlay(nextSquares);
   }
 
-  const winner = calculateWinner(squares);
+  const winResult = calculateWinner(squares);
   let status;
-  if (winner) {
+  let winningLine;
+  let winner;
+
+  if (winResult) {
+    winner = winResult[0];
+    winningLine = winResult[1];
     status = 'Winner: ' + winner;
   } else {
-    status = 'Next player: ' + (xIsNext ? 'X' : 'O');
+    status = squares.every(ele => ele) ? 'Draw: XO' : 'Next player: ' + (xIsNext ? 'X' : 'O'); 
   }
 
-  const getBoardRow = (i) => <Square key={i} value={squares[i]} onSquareClick={() => handleClick(i)} />
+  const getBoardRow = (i, winningLine = []) => {
+    let style;
+    if(winningLine.includes(i)) {
+      style={
+        backgroundColor: 'gray'
+      }
+    }
+    return <Square key={i} value={squares[i]} onSquareClick={() => handleClick(i)} style={style}/>;
+  }
 
   let board = [];
   const boardSize = 3;
   for(let i=0; i<boardSize; i++) {
     let boardRow =[];
     for(let j=0; j<boardSize; j++) {
-      boardRow.push(getBoardRow(i * boardSize + j));
+      boardRow.push(getBoardRow((i * boardSize + j), winningLine));
     }
     board.push(<div key={i} className="board-row">{boardRow}</div>);
   }
@@ -120,7 +133,7 @@ function calculateWinner(squares) {
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+      return [squares[a], lines[i]];
     }
   }
   return null;
